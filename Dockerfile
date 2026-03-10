@@ -1,25 +1,12 @@
-FROM golang:1.24-alpine AS builder
+FROM alpine:edge
 
-ENV GOTOOLCHAIN=auto
+RUN apk add --no-cache tzdata ca-certificates
 
-WORKDIR /app
+COPY main ./main
+COPY static ./static
 
-COPY go.mod go.sum ./
-RUN go mod download
-
-COPY . .
-
-RUN CGO_ENABLED=0 GOOS=linux go build -o main .
-
-FROM alpine:latest
-
-WORKDIR /app
-
-COPY --from=builder /app/main .
-COPY --from=builder /app/static ./static
-
-RUN chmod 777 /app/main
+RUN chmod +x /main
 
 EXPOSE 8000
 
-CMD ["/app/main"]
+CMD ["/main"]
